@@ -335,9 +335,9 @@ console.log('filtrados:', filtrados)
 
       {/* Header mes */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 8px', flexShrink: 0 }}>
-        <button onClick={() => animarCambio(-1)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#888', padding: '4px 8px' }}>‹</button>
+        <button onClick={() => animarCambio(-1)} style={{ background: 'none', border: 'none', WebkitTapHighlightColor: 'transparent', fontSize: 22, cursor: 'pointer', color: '#888', padding: '4px 8px' }}>‹</button>
         <span style={{ fontSize: 16, fontWeight: 500, color: '#1a1a1a' }}>{nombresMes[mes]} {anio}</span>
-        <button onClick={() => animarCambio(1)}  style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#888', padding: '4px 8px' }}>›</button>
+        <button onClick={() => animarCambio(1)}  style={{ background: 'none', border: 'none', fontSize: 22,WebkitTapHighlightColor: 'transparent', cursor: 'pointer', color: '#888', padding: '4px 8px' }}>›</button>
       </div>
 
       {/* Contenedor swipe */}

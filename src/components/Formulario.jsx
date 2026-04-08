@@ -96,6 +96,7 @@ export default function Formulario({ onGuardar, onCancelar }) {
             <button key={op} onClick={() => seleccionar(op)} style={{
               padding: '16px 20px', borderRadius: 99,
               border: '2px solid rgba(255,255,255,0.4)',
+              WebkitTapHighlightColor: 'transparent',
               background: form[paso.campo] === op ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.15)',
               color: form[paso.campo] === op ? '#333' : '#fff',
               fontSize: 16, fontWeight: form[paso.campo] === op ? 500 : 400,
@@ -130,6 +131,7 @@ export default function Formulario({ onGuardar, onCancelar }) {
                       border: '2px solid rgba(255,255,255,0.4)',
                       background: sel ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.15)',
                       color: sel ? '#333' : '#fff',
+                      WebkitTapHighlightColor: 'transparent',
                       fontSize: 16, fontWeight: sel ? 500 : 400,
                       cursor: 'pointer',
                       display: 'flex', alignItems: 'center', gap: 10,
@@ -170,6 +172,7 @@ export default function Formulario({ onGuardar, onCancelar }) {
         <button onClick={siguiente} disabled={vacio} style={{
           width: '100%', padding: 18, borderRadius: 99,
           border: 'none',
+          WebkitTapHighlightColor: 'transparent',
           background: vacio ? 'rgba(30,20,60,0.3)' : 'rgba(30,20,60,0.75)',
           color: vacio ? 'rgba(255,255,255,0.4)' : '#fff',
           fontSize: 16, fontWeight: 500,
