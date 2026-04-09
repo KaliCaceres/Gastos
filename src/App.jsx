@@ -13,7 +13,14 @@ export default function App() {
   const [cargando, setCargando]       = useState(true)
   const [movEditando, setMovEditando] = useState(null)
   const [mostrarConfig, setMostrarConfig] = useState(false)
+// Agregá estos estados junto a los otros useState
+const [mesFiltro, setMesFiltro]   = useState(new Date().getMonth())
+const [anioFiltro, setAnioFiltro] = useState(new Date().getFullYear())
 
+function cambiarMes(m, a) {
+  setMesFiltro(m)
+  setAnioFiltro(a)
+}
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUsuario(session?.user ?? null)
@@ -123,16 +130,26 @@ export default function App() {
                 onCancelar={() => setMovEditando(null)}
               />
             )}
-            {pantalla === 'lista' && !movEditando && (
-              <Lista
-                movimientos={movimientos}
-                onEliminar={eliminarMovimiento}
-                onMarcarRealizado={marcarRealizado}
-                onRepetir={repetirMovimiento}
-                onEditarClick={setMovEditando}
-              />
-            )}
-            {pantalla === 'resumen' && <Resumen movimientos={movimientos} />}
+{pantalla === 'lista' && !movEditando && (
+  <Lista
+    movimientos={movimientos}
+    onEliminar={eliminarMovimiento}
+    onMarcarRealizado={marcarRealizado}
+    onRepetir={repetirMovimiento}
+    onEditarClick={setMovEditando}
+    mes={mesFiltro}
+    anio={anioFiltro}
+    onCambiarMes={cambiarMes}
+  />
+)}
+{pantalla === 'resumen' && (
+  <Resumen
+    movimientos={movimientos}
+    mes={mesFiltro}
+    anio={anioFiltro}
+    onCambiarMes={cambiarMes}
+  />
+)}
           </div>
 
           {pantalla !== 'formulario' && !movEditando && (
