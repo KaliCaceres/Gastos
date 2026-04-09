@@ -64,19 +64,16 @@ const estiloFlecha = {
   width: 38, height: 38, borderRadius: '50%', border: 'none', cursor: 'pointer',
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   background: 'rgba(255,255,255,0.1)',
-  WebkitTapHighlightColor: 'transparent',
-  flexShrink: 0,
+  WebkitTapHighlightColor: 'transparent', flexShrink: 0,
 }
 
 function getEstiloCard(tipo, estado) {
   const pendiente = estado === 'pendiente'
-  if (tipo === 'egreso') {
-    return pendiente
-      ? { background: 'rgba(185,28,28,0.35)', border: '1.5px dashed rgba(255,255,255,0.25)' }
-      : { background: '#B91C1C', boxShadow: '0 5px 0px #7F1D1D', borderTop: '1px solid rgba(255,255,255,0.12)' }
-  }
+  if (tipo === 'egreso') return pendiente
+    ? { background: 'rgba(185,28,28,0.35)', border: '1.5px dashed rgba(255,255,255,0.2)' }
+    : { background: '#B91C1C', boxShadow: '0 5px 0px #7F1D1D', borderTop: '1px solid rgba(255,255,255,0.12)' }
   return pendiente
-    ? { background: 'rgba(21,128,61,0.35)', border: '1.5px dashed rgba(255,255,255,0.25)' }
+    ? { background: 'rgba(21,128,61,0.35)', border: '1.5px dashed rgba(255,255,255,0.2)' }
     : { background: '#15803D', boxShadow: '0 5px 0px #14532D', borderTop: '1px solid rgba(255,255,255,0.12)' }
 }
 
@@ -95,22 +92,16 @@ function EmptyState({ mes }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, padding: 32, textAlign: 'center' }}>
       <div style={{
-        width: 80, height: 80, borderRadius: 24,
-        background: 'rgba(255,255,255,0.08)',
+        width: 80, height: 80, borderRadius: 24, background: 'rgba(255,255,255,0.08)',
         border: '1.5px dashed rgba(255,255,255,0.2)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20,
       }}>
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="2" y="5" width="20" height="14" rx="2"/>
-          <line x1="2" y1="10" x2="22" y2="10"/>
+          <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
         </svg>
       </div>
-      <p style={{ fontSize: 20, fontWeight: 500, color: '#fff', marginBottom: 8 }}>
-        Sin movimientos en {mes.toLowerCase()}
-      </p>
-      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
-        Todavía no registraste<br />nada este mes.
-      </p>
+      <p style={{ fontSize: 20, fontWeight: 500, color: '#fff', marginBottom: 8 }}>Sin movimientos en {mes.toLowerCase()}</p>
+      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>Todavía no registraste<br />nada este mes.</p>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 32 }}>
         <div style={{ width: 28, height: 1, background: 'rgba(255,255,255,0.15)' }} />
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>usá las flechas para cambiar de mes</span>
@@ -120,7 +111,7 @@ function EmptyState({ mes }) {
   )
 }
 
-function MovimientoCard({ m, onEliminar, onAbrir }) {
+function MovimientoCard({ m, onConfirmarEliminar, onAbrir }) {
   const cardRef         = useRef(null)
   const bgRef           = useRef(null)
   const snappedRef      = useRef(false)
@@ -132,8 +123,8 @@ function MovimientoCard({ m, onEliminar, onAbrir }) {
   const movedRef        = useRef(false)
   const SNAP = -88
 
-  const Icono = catIconos[m.categoria] || catIconos.Default
-  const pendiente = m.estado === 'pendiente'
+  const Icono      = catIconos[m.categoria] || catIconos.Default
+  const pendiente  = m.estado === 'pendiente'
   const estiloCard = getEstiloCard(m.tipo, m.estado)
   const colorMonto = pendiente ? 'rgba(255,255,255,0.6)' : '#fff'
 
@@ -148,19 +139,15 @@ function MovimientoCard({ m, onEliminar, onAbrir }) {
   }
 
   function onStart(x, y) {
-    startXRef.current     = x
-    startYRef.current     = y
-    draggingRef.current   = true
-    isHorizontalRef.current = null
-    movedRef.current      = false
-    currentXRef.current   = snappedRef.current ? SNAP : 0
+    startXRef.current = x; startYRef.current = y
+    draggingRef.current = true; isHorizontalRef.current = null; movedRef.current = false
+    currentXRef.current = snappedRef.current ? SNAP : 0
     setX(currentXRef.current, false)
   }
 
   function onMove(x, y) {
     if (!draggingRef.current) return
-    const dx = x - startXRef.current
-    const dy = y - startYRef.current
+    const dx = x - startXRef.current, dy = y - startYRef.current
     if (isHorizontalRef.current === null && (Math.abs(dx) > 5 || Math.abs(dy) > 5))
       isHorizontalRef.current = Math.abs(dx) > Math.abs(dy)
     if (!isHorizontalRef.current) return
@@ -168,8 +155,7 @@ function MovimientoCard({ m, onEliminar, onAbrir }) {
     const base = snappedRef.current ? SNAP : 0
     const nx = Math.min(0, Math.max(-130, base + dx))
     currentXRef.current = nx
-    const card = cardRef.current
-    const bg   = bgRef.current
+    const card = cardRef.current, bg = bgRef.current
     if (card) { card.style.transition = 'none'; card.style.transform = `translateX(${nx}px)`; }
     if (bg)   bg.style.opacity = nx < -20 ? '1' : '0'
   }
@@ -192,7 +178,7 @@ function MovimientoCard({ m, onEliminar, onAbrir }) {
 
   return (
     <div style={{ position: 'relative', paddingBottom: 8, marginBottom: 2, touchAction: 'pan-y' }}>
-      <div ref={bgRef} onClick={() => onEliminar(m.id)} style={{
+      <div ref={bgRef} onClick={() => onConfirmarEliminar(m.id)} style={{
         position: 'absolute', top: 0, right: 0, bottom: 8, width: 80, borderRadius: 14,
         background: 'linear-gradient(145deg,#FF6B6B,#E74C3C)',
         boxShadow: '0 5px 0px #B03A2E',
@@ -208,11 +194,7 @@ function MovimientoCard({ m, onEliminar, onAbrir }) {
         onTouchStart={e => onStart(e.touches[0].clientX, e.touches[0].clientY)}
         onTouchMove={e  => onMove(e.touches[0].clientX,  e.touches[0].clientY)}
         onTouchEnd={() => onEnd()}
-        onMouseDown={e => {
-          onStart(e.clientX, e.clientY)
-          window.addEventListener('mousemove', onMouseMove)
-          window.addEventListener('mouseup', onMouseUp)
-        }}
+        onMouseDown={e => { onStart(e.clientX, e.clientY); window.addEventListener('mousemove', onMouseMove); window.addEventListener('mouseup', onMouseUp); }}
       >
         <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           {Icono('rgba(255,255,255,0.8)')}
@@ -229,11 +211,36 @@ function MovimientoCard({ m, onEliminar, onAbrir }) {
   )
 }
 
+function ModalConfirmar({ id, onCerrar, onEliminar }) {
+  if (!id) return null
+  return (
+    <>
+      <div onClick={onCerrar} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10 }} />
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#1A3C34', borderRadius: '20px 20px 0 0', padding: '24px 20px 36px', zIndex: 11, textAlign: 'center' }}>
+        <div style={{ width: 36, height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.2)', margin: '0 auto 20px' }} />
+        <p style={{ fontSize: 18, fontWeight: 600, color: '#fff', marginBottom: 8 }}>¿Eliminar movimiento?</p>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 28 }}>Esta acción no se puede deshacer</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <button onClick={() => { onEliminar(id); onCerrar(); }} style={{
+            padding: 15, borderRadius: 99, border: 'none', cursor: 'pointer',
+            background: '#B91C1C', color: '#fff', fontSize: 15, fontWeight: 600,
+            WebkitTapHighlightColor: 'transparent',
+          }}>Sí, eliminar</button>
+          <button onClick={onCerrar} style={{
+            padding: 15, borderRadius: 99, border: '1.5px solid rgba(255,255,255,0.15)',
+            background: 'transparent', color: 'rgba(255,255,255,0.7)', fontSize: 15, fontWeight: 500,
+            cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
+          }}>Cancelar</button>
+        </div>
+      </div>
+    </>
+  )
+}
+
 function Modal({ m, onCerrar, onMarcarRealizado, onRepetir, onEditarClick }) {
   if (!m) return null
-  const pendiente = m.estado === 'pendiente'
-  const colorTipo = m.tipo === 'egreso' ? '#B91C1C' : '#15803D'
-
+  const pendiente  = m.estado === 'pendiente'
+  const colorTipo  = m.tipo === 'egreso' ? '#B91C1C' : '#15803D'
   const badgeEstado = pendiente
     ? { background: 'rgba(185,28,28,0.15)', color: '#B91C1C', border: '1px dashed #B91C1C' }
     : { background: '#D6EDDA', color: '#15803D' }
@@ -263,17 +270,13 @@ function Modal({ m, onCerrar, onMarcarRealizado, onRepetir, onEditarClick }) {
       <div onClick={onCerrar} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 10 }} />
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', padding: '12px 20px 32px', zIndex: 11 }}>
         <div style={{ width: 36, height: 4, borderRadius: 99, background: '#ddd', margin: '0 auto 16px' }} />
-        <p style={{ fontSize: 16, fontWeight: 500, color: '#1a1a1a', marginBottom: 16 }}>
-          {m.categoria} — {m.descripcion || '—'}
-        </p>
-
+        <p style={{ fontSize: 16, fontWeight: 500, color: '#1a1a1a', marginBottom: 16 }}>{m.categoria} — {m.descripcion || '—'}</p>
         {filas.map((f, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < filas.length - 1 ? '0.5px solid #f0f0f0' : 'none' }}>
             <span style={{ fontSize: 13, color: '#888' }}>{f.label}</span>
             {f.content}
           </div>
         ))}
-
         <div style={{ display: 'grid', gridTemplateColumns: pendiente ? '1fr 1fr 1fr' : '1fr 1fr', gap: 8, marginTop: 16 }}>
           {pendiente && (
             <button style={estiloAccion('#D6EDDA', '#15803D')} onClick={() => { onMarcarRealizado(m.id); onCerrar(); }}>
@@ -301,18 +304,15 @@ function Modal({ m, onCerrar, onMarcarRealizado, onRepetir, onEditarClick }) {
   )
 }
 
-export default function Lista({ movimientos, onEliminar, onMarcarRealizado, onRepetir, onEditarClick }) {
-  const [modalMov, setModalMov] = useState(null)
-  const [mes, setMes]           = useState(new Date().getMonth())
-  const [anio, setAnio]         = useState(new Date().getFullYear())
+export default function Lista({ movimientos, onEliminar, onMarcarRealizado, onRepetir, onEditarClick, mes, anio, onCambiarMes }) {
+  const [modalMov, setModalMov]   = useState(null)
+  const [confirmarId, setConfirmarId] = useState(null)
 
   function cambiarMes(dir) {
-    setMes(m => {
-      const nm = m + dir
-      if (nm > 11) { setAnio(a => a + 1); return 0 }
-      if (nm < 0)  { setAnio(a => a - 1); return 11 }
-      return nm
-    })
+    let nm = mes + dir, na = anio
+    if (nm > 11) { nm = 0;  na++ }
+    if (nm < 0)  { nm = 11; na-- }
+    onCambiarMes(nm, na)
   }
 
   const filtrados = movimientos.filter(m => {
@@ -347,18 +347,24 @@ export default function Lista({ movimientos, onEliminar, onMarcarRealizado, onRe
             : items.map((item) =>
                 item.tipo === 'separador'
                   ? <SeparadorFecha key={`sep-${item.fecha}`} fecha={item.fecha} />
-                  : <MovimientoCard key={item.m.id} m={item.m} onEliminar={onEliminar} onAbrir={setModalMov} />
+                  : <MovimientoCard
+                      key={item.m.id} m={item.m}
+                      onConfirmarEliminar={setConfirmarId}
+                      onAbrir={setModalMov}
+                    />
               )
           }
         </div>
       </div>
 
       <Modal
-        m={modalMov}
-        onCerrar={() => setModalMov(null)}
-        onMarcarRealizado={onMarcarRealizado}
-        onRepetir={onRepetir}
+        m={modalMov} onCerrar={() => setModalMov(null)}
+        onMarcarRealizado={onMarcarRealizado} onRepetir={onRepetir}
         onEditarClick={(m) => { onEditarClick(m); setModalMov(null); }}
+      />
+      <ModalConfirmar
+        id={confirmarId} onCerrar={() => setConfirmarId(null)}
+        onEliminar={onEliminar}
       />
     </div>
   )

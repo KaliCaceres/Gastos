@@ -1,5 +1,26 @@
 import { useState } from 'react'
 
+const flechaIzq = (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+  </svg>
+)
+
+const flechaDer = (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/>
+  </svg>
+)
+
+const nombresMes = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+
+const estiloFlecha = {
+  width: 38, height: 38, borderRadius: '50%', border: 'none', cursor: 'pointer',
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  background: 'rgba(255,255,255,0.1)',
+  WebkitTapHighlightColor: 'transparent', flexShrink: 0,
+}
+
 const ICONOS = {
   egreso: (color) => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -72,25 +93,38 @@ function LabelSeccion({ texto }) {
   )
 }
 
-export default function Resumen({ movimientos }) {
+export default function Resumen({ movimientos, mes, anio, onCambiarMes }) {
   const [incluirPendientes, setIncluirPendientes] = useState(false)
 
-  const realizados = movimientos.filter(m => m.estado === 'realizado')
-  const pendientes = movimientos.filter(m => m.estado === 'pendiente')
+  function cambiarMes(dir) {
+    let nm = mes + dir, na = anio
+    if (nm > 11) { nm = 0;  na++ }
+    if (nm < 0)  { nm = 11; na-- }
+    onCambiarMes(nm, na)
+  }
 
-  const totalEgresos         = realizados.filter(m => m.tipo === 'egreso').reduce((s, m) => s + m.monto, 0)
-  const totalIngresos        = realizados.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0)
-  const totalEgresosPend     = pendientes.filter(m => m.tipo === 'egreso').reduce((s, m) => s + m.monto, 0)
-  const totalIngresosPend    = pendientes.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0)
-  const cantEgresosPend      = pendientes.filter(m => m.tipo === 'egreso').length
-  const cantIngresosPend     = pendientes.filter(m => m.tipo === 'ingreso').length
+  // Filtrar por mes
+  const movsMes = movimientos.filter(m => {
+    if (!m.fecha) return false
+    const [y, mo] = m.fecha.split('-')
+    return parseInt(mo) - 1 === mes && parseInt(y) === anio
+  })
+
+  const realizados = movsMes.filter(m => m.estado === 'realizado')
+  const pendientes = movsMes.filter(m => m.estado === 'pendiente')
+
+  const totalEgresos      = realizados.filter(m => m.tipo === 'egreso').reduce((s, m) => s + m.monto, 0)
+  const totalIngresos     = realizados.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0)
+  const totalEgresosPend  = pendientes.filter(m => m.tipo === 'egreso').reduce((s, m) => s + m.monto, 0)
+  const totalIngresosPend = pendientes.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0)
+  const cantEgresosPend   = pendientes.filter(m => m.tipo === 'egreso').length
+  const cantIngresosPend  = pendientes.filter(m => m.tipo === 'ingreso').length
 
   const base  = totalIngresos - totalEgresos
   const pend  = totalIngresosPend - totalEgresosPend
   const total = incluirPendientes ? base + pend : base
 
-  // Categorías — solo realizados, o todos si incluye pendientes
-  const movsFiltrados = incluirPendientes ? movimientos : realizados
+  const movsFiltrados = incluirPendientes ? movsMes : realizados
   const categorias = {}
   movsFiltrados.forEach(m => {
     if (!categorias[m.categoria]) categorias[m.categoria] = { total: 0, count: 0 }
@@ -98,7 +132,6 @@ export default function Resumen({ movimientos }) {
     categorias[m.categoria].count += 1
   })
 
-  // Colores según estado del toggle
   const colorPendLabel = incluirPendientes ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.5)'
   const colorPendValor = incluirPendientes ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.4)'
   const iconColorPend  = incluirPendientes ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)'
@@ -106,7 +139,13 @@ export default function Resumen({ movimientos }) {
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 12, display: 'flex', flexDirection: 'column', gap: 8, background: '#1A3C34' }}>
 
-      {/* Egresos realizados */}
+      {/* Header mes */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 4px 8px', flexShrink: 0 }}>
+        <button onClick={() => cambiarMes(-1)} style={estiloFlecha}>{flechaIzq}</button>
+        <span style={{ fontSize: 17, fontWeight: 600, color: '#fff' }}>{nombresMes[mes]} {anio}</span>
+        <button onClick={() => cambiarMes(1)} style={estiloFlecha}>{flechaDer}</button>
+      </div>
+
       <Tarjeta
         estilo={estiloSolido('egreso')}
         icono={ICONOS.egreso('rgba(255,255,255,0.8)')}
@@ -116,7 +155,6 @@ export default function Resumen({ movimientos }) {
         colorLabel="#fff" colorValor="#fff"
       />
 
-      {/* Egresos pendientes */}
       {cantEgresosPend > 0 && (
         <Tarjeta
           estilo={incluirPendientes ? estiloMedio('egreso') : estiloGhost('egreso')}
@@ -128,7 +166,6 @@ export default function Resumen({ movimientos }) {
         />
       )}
 
-      {/* Ingresos realizados */}
       <Tarjeta
         estilo={estiloSolido('ingreso')}
         icono={ICONOS.ingreso('rgba(255,255,255,0.8)')}
@@ -138,7 +175,6 @@ export default function Resumen({ movimientos }) {
         colorLabel="#fff" colorValor="#fff"
       />
 
-      {/* Ingresos pendientes */}
       {cantIngresosPend > 0 && (
         <Tarjeta
           estilo={incluirPendientes ? estiloMedio('ingreso') : estiloGhost('ingreso')}
@@ -169,14 +205,11 @@ export default function Resumen({ movimientos }) {
       {/* Toggle */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 4px' }}>
         <span style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>Incluir pendientes</span>
-        <div
-          onClick={() => setIncluirPendientes(!incluirPendientes)}
-          style={{
-            width: 44, height: 24, borderRadius: 99, cursor: 'pointer',
-            background: incluirPendientes ? '#AAEB4E' : 'rgba(255,255,255,0.15)',
-            position: 'relative', transition: 'background 0.2s', flexShrink: 0
-          }}
-        >
+        <div onClick={() => setIncluirPendientes(!incluirPendientes)} style={{
+          width: 44, height: 24, borderRadius: 99, cursor: 'pointer',
+          background: incluirPendientes ? '#AAEB4E' : 'rgba(255,255,255,0.15)',
+          position: 'relative', transition: 'background 0.2s', flexShrink: 0
+        }}>
           <div style={{
             position: 'absolute', top: 3,
             left: incluirPendientes ? 23 : 3,
