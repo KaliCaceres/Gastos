@@ -260,10 +260,13 @@ export default function Lista({ movimientos, onEliminar }) {
   const [anio, setAnio]         = useState(new Date().getFullYear())
   const [slideStyle, setSlideStyle] = useState({})
 
-  const swipeStartX   = useRef(0)
-  const swipeDragging = useRef(false)
-  const swipeDX       = useRef(0)
-  const UMBRAL = 60
+const swipeStartX    = useRef(0)
+const swipeStartY    = useRef(0)
+const swipeDragging  = useRef(false)
+const swipeDX        = useRef(0)
+const swipeIsHoriz   = useRef(null)
+const swipeBlocked   = useRef(false)
+const UMBRAL = 60
 
   function animarCambio(dir) {
     const salida  = dir > 0 ? '-110%' : '110%'
@@ -283,32 +286,48 @@ export default function Lista({ movimientos, onEliminar }) {
     }, 220)
   }
 
-  function onSwipeStart(x) {
-    swipeStartX.current   = x
-    swipeDragging.current = true
-    swipeDX.current       = 0
-  }
+function onSwipeStart(x, y) {
+  swipeStartX.current   = x
+  swipeStartY.current   = y
+  swipeDragging.current = true
+  swipeDX.current       = 0
+  swipeIsHoriz.current  = null
+  swipeBlocked.current  = false
+}
 
-  function onSwipeMove(x) {
-    if (!swipeDragging.current) return
-    swipeDX.current = x - swipeStartX.current
-    setSlideStyle({ transform: `translateX(${swipeDX.current * 0.3}px)`, transition: 'none' })
-  }
+function onSwipeMove(x, y) {
+  if (!swipeDragging.current || swipeBlocked.current) return
+  const dx = x - swipeStartX.current
+  const dy = y - swipeStartY.current
 
-  function onSwipeEnd() {
-    if (!swipeDragging.current) return
-    swipeDragging.current = false
-    if      (swipeDX.current < -UMBRAL) animarCambio(1)
-    else if (swipeDX.current >  UMBRAL) animarCambio(-1)
-    else setSlideStyle({ transform: 'translateX(0)', transition: 'transform 0.25s cubic-bezier(0.22,1,0.36,1)' })
-  }
+  if (swipeIsHoriz.current === null && (Math.abs(dx) > 5 || Math.abs(dy) > 5))
+    swipeIsHoriz.current = Math.abs(dx) > Math.abs(dy)
 
-  function onSwipeMouseMove(e) { onSwipeMove(e.clientX) }
-  function onSwipeMouseUp()    {
-    onSwipeEnd()
-    window.removeEventListener('mousemove', onSwipeMouseMove)
-    window.removeEventListener('mouseup',   onSwipeMouseUp)
+  if (!swipeIsHoriz.current) { swipeBlocked.current = true; return }
+
+  swipeDX.current = dx
+  setSlideStyle({ transform: `translateX(${dx * 0.3}px)`, transition: 'none' })
+}
+
+function onSwipeEnd() {
+  if (!swipeDragging.current) return
+  swipeDragging.current = false
+  if (swipeBlocked.current || swipeIsHoriz.current === null) {
+    setSlideStyle({ transform: 'translateX(0)', transition: 'transform 0.25s cubic-bezier(0.22,1,0.36,1)' })
+    return
   }
+  if      (swipeDX.current < -UMBRAL) animarCambio(1)
+  else if (swipeDX.current >  UMBRAL) animarCambio(-1)
+  else setSlideStyle({ transform: 'translateX(0)', transition: 'transform 0.25s cubic-bezier(0.22,1,0.36,1)' })
+}
+
+function onSwipeMouseMove(e) { onSwipeMove(e.clientX, e.clientY) }
+function onSwipeMouseUp()    {
+  onSwipeEnd()
+  window.removeEventListener('mousemove', onSwipeMouseMove)
+  window.removeEventListener('mouseup',   onSwipeMouseUp)
+}
+
 
   const filtrados = movimientos.filter(m => {
     if (!m.fecha) return false
@@ -330,40 +349,40 @@ console.log('movimientos:', movimientos)
 console.log('mes:', mes, 'anio:', anio)
 console.log('filtrados:', filtrados)
 
-  return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-
-      {/* Header mes */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 8px', flexShrink: 0 }}>
-        <button onClick={() => animarCambio(-1)} style={{ background: 'none', border: 'none', WebkitTapHighlightColor: 'transparent', fontSize: 22, cursor: 'pointer', color: '#888', padding: '4px 8px' }}>‹</button>
-        <span style={{ fontSize: 16, fontWeight: 500, color: '#1a1a1a' }}>{nombresMes[mes]} {anio}</span>
-        <button onClick={() => animarCambio(1)}  style={{ background: 'none', border: 'none', fontSize: 22,WebkitTapHighlightColor: 'transparent', cursor: 'pointer', color: '#888', padding: '4px 8px' }}>›</button>
-      </div>
-
-      {/* Contenedor swipe */}
-<div
-  style={{ flex: 1, overflow: 'hidden', position: 'relative' }}
-  onTouchStart={e => onSwipeStart(e.touches[0].clientX)}
-  onTouchMove={e  => onSwipeMove(e.touches[0].clientX)}
-  onTouchEnd={() => onSwipeEnd()}
-  onMouseDown={e => {
-    onSwipeStart(e.clientX)
-    window.addEventListener('mousemove', onSwipeMouseMove)
-    window.addEventListener('mouseup',   onSwipeMouseUp)
-  }}
->
-<div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', padding: '0 12px 12px', ...slideStyle }}>          {filtrados.length === 0
-            ? <EmptyState mes={nombresMes[mes]} />
-            : items.map((item) =>
-                item.tipo === 'separador'
-                  ? <SeparadorFecha key={`sep-${item.fecha}`} fecha={item.fecha} />
-                  : <MovimientoCard key={item.m.id} m={item.m} onEliminar={onEliminar} onAbrir={setModalMov} />
-              )
-          }
-        </div>
-      </div>
-
-      <Modal m={modalMov} onCerrar={() => setModalMov(null)} />
+return (
+  <div
+    style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+    onTouchStart={e => onSwipeStart(e.touches[0].clientX, e.touches[0].clientY)}
+    onTouchMove={e  => onSwipeMove(e.touches[0].clientX,  e.touches[0].clientY)}
+    onTouchEnd={() => onSwipeEnd()}
+    onMouseDown={e => {
+      onSwipeStart(e.clientX, e.clientY)
+      window.addEventListener('mousemove', onSwipeMouseMove)
+      window.addEventListener('mouseup',   onSwipeMouseUp)
+    }}
+  >
+    {/* Header mes */}
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 8px', flexShrink: 0 }}>
+      <button onClick={() => animarCambio(-1)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#888', padding: '4px 8px' }}>‹</button>
+      <span style={{ fontSize: 16, fontWeight: 500, color: '#1a1a1a' }}>{nombresMes[mes]} {anio}</span>
+      <button onClick={() => animarCambio(1)}  style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#888', padding: '4px 8px' }}>›</button>
     </div>
-  )
+
+    {/* Lista */}
+    <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', padding: '0 12px 12px', ...slideStyle }}>
+        {filtrados.length === 0
+          ? <EmptyState mes={nombresMes[mes]} />
+          : items.map((item) =>
+              item.tipo === 'separador'
+                ? <SeparadorFecha key={`sep-${item.fecha}`} fecha={item.fecha} />
+                : <MovimientoCard key={item.m.id} m={item.m} onEliminar={onEliminar} onAbrir={setModalMov} />
+            )
+        }
+      </div>
+    </div>
+
+    <Modal m={modalMov} onCerrar={() => setModalMov(null)} />
+  </div>
+)
 }
