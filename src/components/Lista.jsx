@@ -335,7 +335,7 @@ export default function Lista({ movimientos, onEliminar, onMarcarRealizado, onRe
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#1A3C34' }}>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 64px 10px 16px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 10px', flexShrink: 0 }}>
         <button onClick={() => cambiarMes(-1)} style={estiloFlecha}>{flechaIzq}</button>
         <span style={{ fontSize: 17, fontWeight: 600, color: '#fff' }}>{nombresMes[mes]} {anio}</span>
         <button onClick={() => cambiarMes(1)} style={estiloFlecha}>{flechaDer}</button>

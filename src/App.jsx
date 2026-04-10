@@ -88,25 +88,6 @@ export default function App() {
   return (
     <div style={{ width: '100%', height: '100vh', background: '#1A3C34', display: 'flex', flexDirection: 'column', position: 'relative' }}>
 
-      {/* Botón config — flotante, no ocupa espacio */}
-      {pantalla !== 'formulario' && !movEditando && (
-        <button
-          onClick={() => setMostrarConfig(true)}
-          style={{
-            position: 'absolute', top: 14, right: 16, zIndex: 5,
-            width: 38, height: 38, borderRadius: '50%',
-            background: 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            WebkitTapHighlightColor: 'transparent',
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
-        </button>
-      )}
-
       {/* Contenido principal */}
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {pantalla === 'formulario' && (
@@ -142,42 +123,60 @@ export default function App() {
       </div>
 
       {/* Bottom bar */}
-      {pantalla !== 'formulario' && !movEditando && (
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '12px 20px 16px', background: '#1A3C34',
-          borderTop: '0.5px solid rgba(255,255,255,0.1)', flexShrink: 0,
-        }}>
-          <button
-            onClick={() => setPantalla(enLista ? 'resumen' : 'lista')}
-            style={{
-              width: 52, height: 52, borderRadius: '50%', border: 'none', cursor: 'pointer',
-              background: 'rgba(255,255,255,0.1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              WebkitTapHighlightColor: 'transparent',
-            }}
-          >
-            {enLista
-              ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-              : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-            }
-          </button>
+{pantalla !== 'formulario' && !movEditando && (
+  <div style={{
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    padding: '12px 20px 16px', background: '#1A3C34',
+    borderTop: '0.5px solid rgba(255,255,255,0.1)', flexShrink: 0,
+  }}>
+    {/* Estadísticas */}
+    <button
+      onClick={() => setPantalla(enLista ? 'resumen' : 'lista')}
+      style={{
+        width: 52, height: 52, borderRadius: '50%', border: 'none', cursor: 'pointer',
+        background: 'rgba(255,255,255,0.1)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      {enLista
+        ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      }
+    </button>
 
-          <button
-            onClick={() => setPantalla('formulario')}
-            style={{
-              width: 52, height: 52, borderRadius: '50%', border: 'none',
-              background: '#AAEB4E', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              WebkitTapHighlightColor: 'transparent',
-            }}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A3C34" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-          </button>
-        </div>
-      )}
+    {/* Alta — centro */}
+    <button
+      onClick={() => setPantalla('formulario')}
+      style={{
+        width: 52, height: 52, borderRadius: '50%', border: 'none',
+        background: '#AAEB4E', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A3C34" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+
+    {/* Configuración — derecha */}
+    <button
+      onClick={() => setMostrarConfig(true)}
+      style={{
+        width: 52, height: 52, borderRadius: '50%', border: 'none', cursor: 'pointer',
+        background: 'rgba(255,255,255,0.1)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+  </div>
+)}
     </div>
   )
 }
