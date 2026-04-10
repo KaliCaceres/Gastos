@@ -122,7 +122,8 @@ function MovimientoCard({ m, onConfirmarEliminar, onAbrir }) {
   const isHorizontalRef = useRef(null)
   const movedRef        = useRef(false)
   const SNAP = -88
-
+const [busqueda, setBusqueda] = useState('')
+const [filtro, setFiltro]     = useState('todos')
   const Icono      = catIconos[m.categoria] || catIconos.Default
   const pendiente  = m.estado === 'pendiente'
   const estiloCard = getEstiloCard(m.tipo, m.estado)
@@ -307,6 +308,8 @@ function Modal({ m, onCerrar, onMarcarRealizado, onRepetir, onEditarClick }) {
 export default function Lista({ movimientos, onEliminar, onMarcarRealizado, onRepetir, onEditarClick, mes, anio, onCambiarMes }) {
   const [modalMov, setModalMov]   = useState(null)
   const [confirmarId, setConfirmarId] = useState(null)
+  const [busqueda, setBusqueda] = useState('')
+const [filtro, setFiltro]     = useState('todos')
 
   function cambiarMes(dir) {
     let nm = mes + dir, na = anio
@@ -315,11 +318,14 @@ export default function Lista({ movimientos, onEliminar, onMarcarRealizado, onRe
     onCambiarMes(nm, na)
   }
 
-  const filtrados = movimientos.filter(m => {
-    if (!m.fecha) return false
-    const [y, mo] = m.fecha.split('-')
-    return parseInt(mo) - 1 === mes && parseInt(y) === anio
-  })
+const filtrados = movimientos.filter(m => {
+  if (!m.fecha) return false
+  const [y, mo] = m.fecha.split('-')
+  const matchMes  = parseInt(mo) - 1 === mes && parseInt(y) === anio
+  const matchTipo = filtro === 'todos' || m.tipo === filtro
+  const matchQ    = !busqueda || m.categoria?.toLowerCase().includes(busqueda.toLowerCase()) || m.descripcion?.toLowerCase().includes(busqueda.toLowerCase())
+  return matchMes && matchTipo && matchQ
+})
 
   const items = []
   let ultimaFecha = null
@@ -335,11 +341,53 @@ export default function Lista({ movimientos, onEliminar, onMarcarRealizado, onRe
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#1A3C34' }}>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 10px', flexShrink: 0 }}>
-        <button onClick={() => cambiarMes(-1)} style={estiloFlecha}>{flechaIzq}</button>
-        <span style={{ fontSize: 17, fontWeight: 600, color: '#fff' }}>{nombresMes[mes]} {anio}</span>
-        <button onClick={() => cambiarMes(1)} style={estiloFlecha}>{flechaDer}</button>
-      </div>
+<div style={{ padding: '16px 16px 0', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+  {/* Título */}
+  <p style={{ fontSize: 22, fontWeight: 700, color: '#fff' }}>Movimientos</p>
+
+  {/* Buscador */}
+  <input
+    type="text"
+    placeholder="Buscar..."
+    value={busqueda}
+    onChange={e => setBusqueda(e.target.value)}
+    style={{
+      width: '100%', padding: '10px 14px', borderRadius: 99,
+      border: '1.5px solid rgba(255,255,255,0.15)',
+      background: 'rgba(255,255,255,0.08)',
+      color: '#fff', fontSize: 14, outline: 'none',
+    }}
+  />
+
+  {/* Filtros */}
+  <div style={{ display: 'flex', gap: 6 }}>
+    {[
+      { key: 'todos',   label: 'Todos',    bg: '#AAEB4E', color: '#1A3C34' },
+      { key: 'egreso',  label: 'Egresos',  bg: '#B91C1C', color: '#fff' },
+      { key: 'ingreso', label: 'Ingresos', bg: '#15803D', color: '#fff' },
+    ].map(f => (
+      <button key={f.key} onClick={() => setFiltro(f.key)} style={{
+        padding: '6px 14px', borderRadius: 99, cursor: 'pointer', fontSize: 12, fontWeight: 500,
+        border: filtro === f.key ? 'none' : '1.5px solid rgba(255,255,255,0.15)',
+        background: filtro === f.key ? f.bg : 'transparent',
+        color: filtro === f.key ? f.color : 'rgba(255,255,255,0.5)',
+        WebkitTapHighlightColor: 'transparent',
+        transition: 'all 0.15s',
+      }}>
+        {f.label}
+      </button>
+    ))}
+  </div>
+
+  {/* Header mes */}
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <button onClick={() => cambiarMes(-1)} style={estiloFlecha}>{flechaIzq}</button>
+    <span style={{ fontSize: 17, fontWeight: 600, color: '#fff' }}>{nombresMes[mes]} {anio}</span>
+    <button onClick={() => cambiarMes(1)} style={estiloFlecha}>{flechaDer}</button>
+  </div>
+
+</div>
 
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', padding: '0 12px 12px' }}>

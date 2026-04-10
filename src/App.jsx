@@ -87,7 +87,6 @@ export default function App() {
 
   return (
     <div style={{ width: '100%', height: '100vh', background: '#1A3C34', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-
       {/* Contenido principal */}
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {pantalla === 'formulario' && (
