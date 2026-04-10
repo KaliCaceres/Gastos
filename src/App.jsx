@@ -14,8 +14,7 @@ export default function App() {
   const [movEditando, setMovEditando] = useState(null)
   const [mostrarConfig, setMostrarConfig] = useState(false)
   // Agregá estos estados junto a los otros useState
-  const [mesFiltro, setMesFiltro] = useState(new Date().getMonth())
-  const [anioFiltro, setAnioFiltro] = useState(new Date().getFullYear())
+
 
   function cambiarMes(m, a) {
     setMesFiltro(m)
