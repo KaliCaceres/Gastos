@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useTema } from '../TemaContext'
 
 const catIconos = {
   Comida: (color) => (
@@ -27,18 +28,6 @@ const iconoBasura = (
   </svg>
 )
 
-const flechaIzq = (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
-  </svg>
-)
-
-const flechaDer = (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/>
-  </svg>
-)
-
 const nombresMes = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 
 function fmt(n) { return '$' + Math.abs(Math.round(n)).toLocaleString('es-AR') }
@@ -60,58 +49,41 @@ function esHoy(f) {
   return f.slice(0, 10) === new Date().toISOString().slice(0, 10)
 }
 
-const estiloFlecha = {
-  width: 38, height: 38, borderRadius: '50%', border: 'none', cursor: 'pointer',
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-  background: 'rgba(255,255,255,0.1)',
-  WebkitTapHighlightColor: 'transparent', flexShrink: 0,
-}
-
-function getEstiloCard(tipo, estado) {
-  const pendiente = estado === 'pendiente'
-  if (tipo === 'egreso') return pendiente
-    ? { background: 'rgba(185,28,28,0.35)', border: '1.5px dashed rgba(255,255,255,0.2)' }
-    : { background: '#B91C1C', boxShadow: '0 5px 0px #7F1D1D', borderTop: '1px solid rgba(255,255,255,0.12)' }
-  return pendiente
-    ? { background: 'rgba(21,128,61,0.35)', border: '1.5px dashed rgba(255,255,255,0.2)' }
-    : { background: '#15803D', boxShadow: '0 5px 0px #14532D', borderTop: '1px solid rgba(255,255,255,0.12)' }
-}
-
-function SeparadorFecha({ fecha }) {
+function SeparadorFecha({ fecha, tema }) {
   const label = esHoy(fecha) ? `Hoy — ${fmtFecha(fecha)}` : fmtFecha(fecha)
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 4px 8px' }}>
-      <div style={{ flex: 1, height: 0.5, background: 'rgba(255,255,255,0.15)' }} />
-      <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{label}</span>
-      <div style={{ flex: 1, height: 0.5, background: 'rgba(255,255,255,0.15)' }} />
+      <div style={{ flex: 1, height: 0.5, background: tema.borde }} />
+      <span style={{ fontSize: 10, fontWeight: 600, color: tema.textoSub, letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{label}</span>
+      <div style={{ flex: 1, height: 0.5, background: tema.borde }} />
     </div>
   )
 }
 
-function EmptyState({ mes }) {
+function EmptyState({ mes, tema }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, padding: 32, textAlign: 'center' }}>
       <div style={{
-        width: 80, height: 80, borderRadius: 24, background: 'rgba(255,255,255,0.08)',
-        border: '1.5px dashed rgba(255,255,255,0.2)',
+        width: 80, height: 80, borderRadius: 24, background: tema.superficie,
+        border: `1.5px dashed ${tema.bordeDash}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20,
       }}>
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={tema.textoSub} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
         </svg>
       </div>
-      <p style={{ fontSize: 20, fontWeight: 500, color: '#fff', marginBottom: 8 }}>Sin movimientos en {mes.toLowerCase()}</p>
-      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>Todavía no registraste<br />nada este mes.</p>
+      <p style={{ fontSize: 20, fontWeight: 500, color: tema.texto, marginBottom: 8 }}>Sin movimientos en {mes.toLowerCase()}</p>
+      <p style={{ fontSize: 14, color: tema.textoSub, lineHeight: 1.6 }}>Todavía no registraste<br />nada este mes.</p>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 32 }}>
-        <div style={{ width: 28, height: 1, background: 'rgba(255,255,255,0.15)' }} />
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>usá las flechas para cambiar de mes</span>
-        <div style={{ width: 28, height: 1, background: 'rgba(255,255,255,0.15)' }} />
+        <div style={{ width: 28, height: 1, background: tema.borde }} />
+        <span style={{ fontSize: 12, color: tema.textoSub }}>usá las flechas para cambiar de mes</span>
+        <div style={{ width: 28, height: 1, background: tema.borde }} />
       </div>
     </div>
   )
 }
 
-function MovimientoCard({ m, onConfirmarEliminar, onAbrir }) {
+function MovimientoCard({ m, onConfirmarEliminar, onAbrir, tema }) {
   const cardRef         = useRef(null)
   const bgRef           = useRef(null)
   const snappedRef      = useRef(false)
@@ -122,16 +94,20 @@ function MovimientoCard({ m, onConfirmarEliminar, onAbrir }) {
   const isHorizontalRef = useRef(null)
   const movedRef        = useRef(false)
   const SNAP = -88
-const [busqueda, setBusqueda] = useState('')
-const [filtro, setFiltro]     = useState('todos')
-  const Icono      = catIconos[m.categoria] || catIconos.Default
-  const pendiente  = m.estado === 'pendiente'
-  const estiloCard = getEstiloCard(m.tipo, m.estado)
-  const colorMonto = pendiente ? 'rgba(255,255,255,0.6)' : '#fff'
+
+  const Icono     = catIconos[m.categoria] || catIconos.Default
+  const pendiente = m.estado === 'pendiente'
+
+  const estiloCard = m.tipo === 'egreso'
+    ? pendiente
+      ? { background: `rgba(${hexToRgb(tema.egreso)},0.35)`, border: `1.5px dashed ${tema.bordeDash}` }
+      : { background: tema.egreso, boxShadow: `0 5px 0px ${tema.egresoSombra}`, borderTop: '1px solid rgba(255,255,255,0.12)' }
+    : pendiente
+      ? { background: `rgba(${hexToRgb(tema.ingreso)},0.35)`, border: `1.5px dashed ${tema.bordeDash}` }
+      : { background: tema.ingreso, boxShadow: `0 5px 0px ${tema.ingresoSombra}`, borderTop: '1px solid rgba(255,255,255,0.12)' }
 
   function setX(x, animated) {
-    const card = cardRef.current
-    const bg   = bgRef.current
+    const card = cardRef.current, bg = bgRef.current
     if (!card) return
     const dur = '0.25s cubic-bezier(0.22,1,0.36,1)'
     card.style.transition = animated ? `transform ${dur}` : 'none'
@@ -188,7 +164,6 @@ const [filtro, setFiltro]     = useState('todos')
       }}>
         {iconoBasura}
       </div>
-
       <div
         ref={cardRef}
         style={{ display: 'flex', alignItems: 'center', gap: 12, borderRadius: 14, padding: '14px 16px', cursor: 'pointer', willChange: 'transform', ...estiloCard }}
@@ -204,7 +179,7 @@ const [filtro, setFiltro]     = useState('todos')
           <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: pendiente ? 'rgba(255,255,255,0.7)' : '#fff' }}>{m.categoria}</p>
           <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{m.descripcion || '—'}</p>
         </div>
-        <span style={{ fontSize: 16, fontWeight: 600, color: colorMonto, flexShrink: 0 }}>
+        <span style={{ fontSize: 16, fontWeight: 600, color: pendiente ? 'rgba(255,255,255,0.6)' : '#fff', flexShrink: 0 }}>
           {m.tipo === 'ingreso' ? '+' : '-'}{fmt(m.monto)}
         </span>
       </div>
@@ -212,24 +187,31 @@ const [filtro, setFiltro]     = useState('todos')
   )
 }
 
-function ModalConfirmar({ id, onCerrar, onEliminar }) {
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16)
+  const g = parseInt(hex.slice(3,5),16)
+  const b = parseInt(hex.slice(5,7),16)
+  return `${r},${g},${b}`
+}
+
+function ModalConfirmar({ id, onCerrar, onEliminar, tema }) {
   if (!id) return null
   return (
     <>
       <div onClick={onCerrar} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10 }} />
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#1A3C34', borderRadius: '20px 20px 0 0', padding: '24px 20px 36px', zIndex: 11, textAlign: 'center' }}>
-        <div style={{ width: 36, height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.2)', margin: '0 auto 20px' }} />
-        <p style={{ fontSize: 18, fontWeight: 600, color: '#fff', marginBottom: 8 }}>¿Eliminar movimiento?</p>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 28 }}>Esta acción no se puede deshacer</p>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: tema.fondo, borderRadius: '20px 20px 0 0', padding: '24px 20px 36px', zIndex: 11, textAlign: 'center' }}>
+        <div style={{ width: 36, height: 4, borderRadius: 99, background: tema.superficie, margin: '0 auto 20px' }} />
+        <p style={{ fontSize: 18, fontWeight: 600, color: tema.texto, marginBottom: 8 }}>¿Eliminar movimiento?</p>
+        <p style={{ fontSize: 14, color: tema.textoSub, marginBottom: 28 }}>Esta acción no se puede deshacer</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <button onClick={() => { onEliminar(id); onCerrar(); }} style={{
             padding: 15, borderRadius: 99, border: 'none', cursor: 'pointer',
-            background: '#B91C1C', color: '#fff', fontSize: 15, fontWeight: 600,
+            background: tema.egreso, color: '#fff', fontSize: 15, fontWeight: 600,
             WebkitTapHighlightColor: 'transparent',
           }}>Sí, eliminar</button>
           <button onClick={onCerrar} style={{
-            padding: 15, borderRadius: 99, border: '1.5px solid rgba(255,255,255,0.15)',
-            background: 'transparent', color: 'rgba(255,255,255,0.7)', fontSize: 15, fontWeight: 500,
+            padding: 15, borderRadius: 99, border: `1.5px solid ${tema.borde}`,
+            background: 'transparent', color: tema.textoSub, fontSize: 15, fontWeight: 500,
             cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
           }}>Cancelar</button>
         </div>
@@ -238,16 +220,17 @@ function ModalConfirmar({ id, onCerrar, onEliminar }) {
   )
 }
 
-function Modal({ m, onCerrar, onMarcarRealizado, onRepetir, onEditarClick }) {
+function Modal({ m, onCerrar, onMarcarRealizado, onRepetir, onEditarClick, tema }) {
   if (!m) return null
-  const pendiente  = m.estado === 'pendiente'
-  const colorTipo  = m.tipo === 'egreso' ? '#B91C1C' : '#15803D'
+  const pendiente = m.estado === 'pendiente'
+  const colorTipo = m.tipo === 'egreso' ? tema.egreso : tema.ingreso
+
   const badgeEstado = pendiente
-    ? { background: 'rgba(185,28,28,0.15)', color: '#B91C1C', border: '1px dashed #B91C1C' }
-    : { background: '#D6EDDA', color: '#15803D' }
+    ? { background: `rgba(${hexToRgb(tema.egreso)},0.15)`, color: tema.egreso, border: `1px dashed ${tema.egreso}` }
+    : { background: `rgba(${hexToRgb(tema.ingreso)},0.15)`, color: tema.ingreso }
   const badgeTipo = m.tipo === 'egreso'
-    ? { background: '#FFD6D6', color: '#B91C1C' }
-    : { background: '#D6EDDA', color: '#15803D' }
+    ? { background: `rgba(${hexToRgb(tema.egreso)},0.15)`, color: tema.egreso }
+    : { background: `rgba(${hexToRgb(tema.ingreso)},0.15)`, color: tema.ingreso }
 
   const filas = [
     { label: 'Tipo',      content: <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, ...badgeTipo }}>{m.tipo.charAt(0).toUpperCase()+m.tipo.slice(1)}</span> },
@@ -306,10 +289,29 @@ function Modal({ m, onCerrar, onMarcarRealizado, onRepetir, onEditarClick }) {
 }
 
 export default function Lista({ movimientos, onEliminar, onMarcarRealizado, onRepetir, onEditarClick, mes, anio, onCambiarMes }) {
-  const [modalMov, setModalMov]   = useState(null)
+  const { tema } = useTema()
+  const [modalMov, setModalMov]       = useState(null)
   const [confirmarId, setConfirmarId] = useState(null)
-  const [busqueda, setBusqueda] = useState('')
-const [filtro, setFiltro]     = useState('todos')
+  const [busqueda, setBusqueda]       = useState('')
+  const [filtro, setFiltro]           = useState('todos')
+
+  const estiloFlecha = {
+    width: 38, height: 38, borderRadius: '50%', border: 'none', cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: tema.superficie, WebkitTapHighlightColor: 'transparent', flexShrink: 0,
+  }
+
+  const flechaIzq = (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={tema.textoSub} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+  )
+
+  const flechaDer = (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={tema.textoSub} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/>
+    </svg>
+  )
 
   function cambiarMes(dir) {
     let nm = mes + dir, na = anio
@@ -318,14 +320,14 @@ const [filtro, setFiltro]     = useState('todos')
     onCambiarMes(nm, na)
   }
 
-const filtrados = movimientos.filter(m => {
-  if (!m.fecha) return false
-  const [y, mo] = m.fecha.split('-')
-  const matchMes  = parseInt(mo) - 1 === mes && parseInt(y) === anio
-  const matchTipo = filtro === 'todos' || m.tipo === filtro
-  const matchQ    = !busqueda || m.categoria?.toLowerCase().includes(busqueda.toLowerCase()) || m.descripcion?.toLowerCase().includes(busqueda.toLowerCase())
-  return matchMes && matchTipo && matchQ
-})
+  const filtrados = movimientos.filter(m => {
+    if (!m.fecha) return false
+    const [y, mo] = m.fecha.split('-')
+    const matchMes  = parseInt(mo) - 1 === mes && parseInt(y) === anio
+    const matchTipo = filtro === 'todos' || m.tipo === filtro
+    const matchQ    = !busqueda || m.categoria?.toLowerCase().includes(busqueda.toLowerCase()) || m.descripcion?.toLowerCase().includes(busqueda.toLowerCase())
+    return matchMes && matchTipo && matchQ
+  })
 
   const items = []
   let ultimaFecha = null
@@ -336,85 +338,65 @@ const filtrados = movimientos.filter(m => {
     }
     items.push({ tipo: 'movimiento', m })
   })
-  console.log('primer movimiento fecha:', movimientos[0]?.fecha)
-  console.log('mes:', mes, 'anio:', anio, 'movimientos:', movimientos.length)
+
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#1A3C34' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: tema.fondo }}>
 
-<div style={{ padding: '16px 16px 0', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ padding: '16px 16px 0', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-  {/* Título */}
-  <p style={{ fontSize: 22, fontWeight: 700, color: '#fff' }}>Movimientos</p>
+        <p style={{ fontSize: 22, fontWeight: 700, color: tema.texto }}>Movimientos</p>
 
-  {/* Buscador */}
-  <input
-    type="text"
-    placeholder="Buscar..."
-    value={busqueda}
-    onChange={e => setBusqueda(e.target.value)}
-    style={{
-      width: '100%', padding: '10px 14px', borderRadius: 99,
-      border: '1.5px solid rgba(255,255,255,0.15)',
-      background: 'rgba(255,255,255,0.08)',
-      color: '#fff', fontSize: 14, outline: 'none',
-    }}
-  />
+        <input
+          type="text"
+          placeholder="Buscar..."
+          value={busqueda}
+          onChange={e => setBusqueda(e.target.value)}
+          style={{
+            width: '100%', padding: '10px 14px', borderRadius: 99,
+            border: `1.5px solid ${tema.borde}`,
+            background: tema.superficie,
+            color: tema.texto, fontSize: 14, outline: 'none',
+          }}
+        />
 
-  {/* Filtros */}
-  <div style={{ display: 'flex', gap: 6 }}>
-    {[
-      { key: 'todos',   label: 'Todos',    bg: '#AAEB4E', color: '#1A3C34' },
-      { key: 'egreso',  label: 'Egresos',  bg: '#B91C1C', color: '#fff' },
-      { key: 'ingreso', label: 'Ingresos', bg: '#15803D', color: '#fff' },
-    ].map(f => (
-      <button key={f.key} onClick={() => setFiltro(f.key)} style={{
-        padding: '6px 14px', borderRadius: 99, cursor: 'pointer', fontSize: 12, fontWeight: 500,
-        border: filtro === f.key ? 'none' : '1.5px solid rgba(255,255,255,0.15)',
-        background: filtro === f.key ? f.bg : 'transparent',
-        color: filtro === f.key ? f.color : 'rgba(255,255,255,0.5)',
-        WebkitTapHighlightColor: 'transparent',
-        transition: 'all 0.15s',
-      }}>
-        {f.label}
-      </button>
-    ))}
-  </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {[
+            { key: 'todos',   label: 'Todos',    bg: tema.acento,   color: tema.acentoTexto },
+            { key: 'egreso',  label: 'Egresos',  bg: tema.egreso,   color: '#fff' },
+            { key: 'ingreso', label: 'Ingresos', bg: tema.ingreso,  color: '#fff' },
+          ].map(f => (
+            <button key={f.key} onClick={() => setFiltro(f.key)} style={{
+              padding: '6px 14px', borderRadius: 99, cursor: 'pointer', fontSize: 12, fontWeight: 500,
+              border: filtro === f.key ? 'none' : `1.5px solid ${tema.borde}`,
+              background: filtro === f.key ? f.bg : 'transparent',
+              color: filtro === f.key ? f.color : tema.textoSub,
+              WebkitTapHighlightColor: 'transparent', transition: 'all 0.15s',
+            }}>{f.label}</button>
+          ))}
+        </div>
 
-  {/* Header mes */}
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-    <button onClick={() => cambiarMes(-1)} style={estiloFlecha}>{flechaIzq}</button>
-    <span style={{ fontSize: 17, fontWeight: 600, color: '#fff' }}>{nombresMes[mes]} {anio}</span>
-    <button onClick={() => cambiarMes(1)} style={estiloFlecha}>{flechaDer}</button>
-  </div>
-
-</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <button onClick={() => cambiarMes(-1)} style={estiloFlecha}>{flechaIzq}</button>
+          <span style={{ fontSize: 17, fontWeight: 600, color: tema.texto }}>{nombresMes[mes]} {anio}</span>
+          <button onClick={() => cambiarMes(1)} style={estiloFlecha}>{flechaDer}</button>
+        </div>
+      </div>
 
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', padding: '0 12px 12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', padding: '8px 12px 12px' }}>
           {filtrados.length === 0
-            ? <EmptyState mes={nombresMes[mes]} />
+            ? <EmptyState mes={nombresMes[mes]} tema={tema} />
             : items.map((item) =>
                 item.tipo === 'separador'
-                  ? <SeparadorFecha key={`sep-${item.fecha}`} fecha={item.fecha} />
-                  : <MovimientoCard
-                      key={item.m.id} m={item.m}
-                      onConfirmarEliminar={setConfirmarId}
-                      onAbrir={setModalMov}
-                    />
+                  ? <SeparadorFecha key={`sep-${item.fecha}`} fecha={item.fecha} tema={tema} />
+                  : <MovimientoCard key={item.m.id} m={item.m} onConfirmarEliminar={setConfirmarId} onAbrir={setModalMov} tema={tema} />
               )
           }
         </div>
       </div>
 
-      <Modal
-        m={modalMov} onCerrar={() => setModalMov(null)}
-        onMarcarRealizado={onMarcarRealizado} onRepetir={onRepetir}
-        onEditarClick={(m) => { onEditarClick(m); setModalMov(null); }}
-      />
-      <ModalConfirmar
-        id={confirmarId} onCerrar={() => setConfirmarId(null)}
-        onEliminar={onEliminar}
-      />
+      <Modal m={modalMov} onCerrar={() => setModalMov(null)} onMarcarRealizado={onMarcarRealizado} onRepetir={onRepetir} onEditarClick={(m) => { onEditarClick(m); setModalMov(null); }} tema={tema} />
+      <ModalConfirmar id={confirmarId} onCerrar={() => setConfirmarId(null)} onEliminar={onEliminar} tema={tema} />
     </div>
   )
 }
