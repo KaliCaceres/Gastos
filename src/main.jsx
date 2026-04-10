@@ -1,10 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { TemaProvider } from './TemaContext'
 import './index.css'
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <TemaProvider>
+      <App />
+    </TemaProvider>
   </StrictMode>,
 )

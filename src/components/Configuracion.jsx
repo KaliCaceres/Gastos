@@ -1,6 +1,10 @@
 import { supabase } from '../supabase'
+import { useTema } from '../TemaContext'
+import { TEMAS } from '../tema'
 
 export default function Configuracion({ usuario, onCerrar }) {
+  const { tema, temaKey, setTemaKey } = useTema()
+
   async function cerrarSesion() {
     await supabase.auth.signOut()
   }
@@ -12,35 +16,66 @@ export default function Configuracion({ usuario, onCerrar }) {
   const nombre = usuario?.user_metadata?.full_name || 'Usuario'
   const email  = usuario?.email || ''
 
+  const puntosColores = {
+    bosque:  ['#B91C1C', '#15803D', '#AAEB4E'],
+    galaxia: ['#DC2626', '#7C3AED', '#A78BFA'],
+    noche:   ['#DC2626', '#059669', '#60A5FA'],
+    dia:     ['#C0392B', '#27AE60', '#F5C842'],
+  }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#1A3C34' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: tema.fondo }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, flexShrink: 0 }}>
-        <button onClick={onCerrar} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: 22, cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}>←</button>
-        <span style={{ fontSize: 16, fontWeight: 600, color: '#fff' }}>Configuración</span>
+        <button onClick={onCerrar} style={{ background: 'none', border: 'none', color: tema.textoSub, fontSize: 22, cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}>←</button>
+        <span style={{ fontSize: 16, fontWeight: 600, color: tema.texto }}>Configuración</span>
       </div>
 
       {/* Avatar */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 16px 24px' }}>
-        <div style={{
-          width: 80, height: 80, borderRadius: '50%',
-          background: '#AAEB4E',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 28, fontWeight: 700, color: '#1A3C34', marginBottom: 12,
-        }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px 20px' }}>
+        <div style={{ width: 72, height: 72, borderRadius: '50%', background: tema.acento, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 700, color: tema.acentoTexto, marginBottom: 12 }}>
           {iniciales}
         </div>
-        <p style={{ fontSize: 18, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{nombre}</p>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{email}</p>
+        <p style={{ fontSize: 18, fontWeight: 600, color: tema.texto, marginBottom: 4 }}>{nombre}</p>
+        <p style={{ fontSize: 13, color: tema.textoSub }}>{email}</p>
       </div>
 
-      <div style={{ flex: 1 }} />
+      {/* Temas */}
+      <div style={{ flex: 1, padding: '0 16px', overflowY: 'auto' }}>
+        <p style={{ fontSize: 10, fontWeight: 600, color: tema.textoSub, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>Tema</p>
 
-      {/* Botón cerrar sesión */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {Object.entries(TEMAS).map(([key, t]) => {
+            const sel = temaKey === key
+            const esDia = key === 'dia'
+            return (
+              <button key={key} onClick={() => setTemaKey(key)} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '14px 16px', borderRadius: 14, cursor: 'pointer',
+                background: t.fondo,
+                border: sel ? `2px solid ${t.acento}` : esDia ? '1.5px solid rgba(0,0,0,0.1)' : '2px solid transparent',
+                WebkitTapHighlightColor: 'transparent',
+              }}>
+                <div style={{ textAlign: 'left' }}>
+                  <p style={{ fontSize: 15, fontWeight: 600, color: t.texto, margin: 0 }}>{t.nombre}</p>
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {puntosColores[key].map((c, i) => (
+                    <div key={i} style={{ width: 18, height: 18, borderRadius: '50%', background: c }} />
+                  ))}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Cerrar sesión */}
       <div style={{ padding: '16px 16px 32px', display: 'flex', justifyContent: 'center' }}>
         <button onClick={cerrarSesion} style={{
-          padding: '15px 32px', borderRadius: 99, border: '1px solid rgba(185,28,28,0.5)',
+          padding: '15px 32px', borderRadius: 99,
+          border: '1px solid rgba(185,28,28,0.5)',
           background: 'rgba(185,28,28,0.3)', color: '#FF6B6B',
           fontSize: 15, fontWeight: 600, cursor: 'pointer',
           display: 'flex', alignItems: 'center', gap: 10,
@@ -54,7 +89,6 @@ export default function Configuracion({ usuario, onCerrar }) {
           Cerrar sesión
         </button>
       </div>
-
     </div>
   )
 }
