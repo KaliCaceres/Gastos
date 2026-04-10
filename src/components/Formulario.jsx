@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { IconoSVG } from './NuevaCategoria'
+import { useTema } from '../TemaContext'
 
 const estiloAnimaciones = `
   @keyframes fadeSlideIn {
@@ -11,32 +12,36 @@ const estiloAnimaciones = `
   .fondo-paso     { transition: background 0.5s cubic-bezier(0.22,1,0.36,1); }
 `
 
-const COLOR_FONDO  = '#1A3C34'
-const COLOR_ACENTO = '#AAEB4E'
-const COLOR_TEXTO  = '#1A3C34'
-
-const pasosFijos = [
-  { campo: 'tipo',        titulo: '¿Qué tipo de movimiento?', subtitulo: 'Seleccioná una opción',  color: COLOR_FONDO, opciones: ['egreso','ingreso'], tipo: 'opciones' },
-  { campo: 'categoria',   titulo: '¿Qué categoría?',          subtitulo: 'Seleccioná una opción',  color: COLOR_FONDO, tipo: 'categorias' },
-  { campo: 'descripcion', titulo: '¿Qué fue?',                subtitulo: 'Agregá una descripción', color: COLOR_FONDO, placeholder: 'Ej: Almuerzo en el trabajo', tipo: 'texto' },
-  { campo: 'estado',      titulo: '¿Cuál es el estado?',      subtitulo: 'Seleccioná una opción',  color: COLOR_FONDO, opciones: ['realizado','pendiente'], tipo: 'opciones' },
-  { campo: 'monto',       titulo: '¿Cuánto?',                 subtitulo: 'Ingresá el importe',     color: COLOR_FONDO, placeholder: '0', tipo: 'numero' },
-  { campo: 'metodo',      titulo: null, subtitulo: null,      color: COLOR_FONDO, tipo: 'metodo' },
-  { campo: 'fecha',       titulo: '¿Cuándo fue?',             subtitulo: 'Seleccioná la fecha',    color: COLOR_FONDO, tipo: 'fecha' },
+const PASOS = [
+  { campo: 'tipo',        titulo: '¿Qué tipo de movimiento?', subtitulo: 'Seleccioná una opción',  opciones: ['egreso','ingreso'], tipo: 'opciones' },
+  { campo: 'categoria',   titulo: '¿Qué categoría?',          subtitulo: 'Seleccioná una opción',  tipo: 'categorias' },
+  { campo: 'descripcion', titulo: '¿Qué fue?',                subtitulo: 'Agregá una descripción', placeholder: 'Ej: Almuerzo en el trabajo', tipo: 'texto' },
+  { campo: 'estado',      titulo: '¿Cuál es el estado?',      subtitulo: 'Seleccioná una opción',  opciones: ['realizado','pendiente'], tipo: 'opciones' },
+  { campo: 'monto',       titulo: '¿Cuánto?',                 subtitulo: 'Ingresá el importe',     placeholder: '0', tipo: 'numero' },
+  { campo: 'metodo',      titulo: null, subtitulo: null,      tipo: 'metodo' },
+  { campo: 'fecha',       titulo: '¿Cuándo fue?',             subtitulo: 'Seleccioná la fecha',    tipo: 'fecha' },
 ]
 
-const estiloOpcion = (sel) => ({
-  padding: '16px 20px', borderRadius: 99, cursor: 'pointer',
-  fontSize: 15, fontWeight: sel ? 600 : 400,
-  border: sel ? 'none' : '1.5px solid rgba(255,255,255,0.2)',
-  background: sel ? COLOR_ACENTO : 'rgba(255,255,255,0.08)',
-  color: sel ? COLOR_TEXTO : 'rgba(255,255,255,0.85)',
-  WebkitTapHighlightColor: 'transparent',
-  display: 'flex', alignItems: 'center', gap: 10,
-  justifyContent: 'center',
-})
-
 export default function Formulario({ onGuardar, onCancelar, movimientoEditar }) {
+  const { tema } = useTema()
+
+  const COLOR_FONDO  = tema.fondo
+  const COLOR_ACENTO = tema.acento
+  const COLOR_TEXTO  = tema.acentoTexto
+
+  const pasosFijos = PASOS.map(p => ({ ...p, color: COLOR_FONDO }))
+
+  const estiloOpcion = (sel) => ({
+    padding: '16px 20px', borderRadius: 99, cursor: 'pointer',
+    fontSize: 15, fontWeight: sel ? 600 : 400,
+    border: sel ? 'none' : '1.5px solid rgba(255,255,255,0.2)',
+    background: sel ? COLOR_ACENTO : 'rgba(255,255,255,0.08)',
+    color: sel ? COLOR_TEXTO : 'rgba(255,255,255,0.85)',
+    WebkitTapHighlightColor: 'transparent',
+    display: 'flex', alignItems: 'center', gap: 10,
+    justifyContent: 'center',
+  })
+
   const [current, setCurrent]       = useState(0)
   const [form, setForm]             = useState(movimientoEditar || {
     tipo: '', categoria: '', descripcion: '', estado: '',
@@ -52,8 +57,8 @@ export default function Formulario({ onGuardar, onCancelar, movimientoEditar }) 
     setCategorias(data || [])
   }
 
-  const paso     = pasosFijos[current]
-  const total    = pasosFijos.length
+  const paso      = pasosFijos[current]
+  const total     = pasosFijos.length
   const esEdicion = !!movimientoEditar
 
   function seleccionar(valor) { setForm({ ...form, [paso.campo]: valor }) }
@@ -83,7 +88,6 @@ export default function Formulario({ onGuardar, onCancelar, movimientoEditar }) 
     ? ['Efectivo', 'Transferencia', 'Depósito']
     : ['Efectivo', 'Transferencia', 'Tarjeta']
 
-  // Categoría seleccionada siempre arriba
   const categoriasFiltradas = [
     ...categorias.filter(cat => cat.nombre === form.categoria),
     ...categorias.filter(cat => cat.nombre !== form.categoria),
@@ -98,7 +102,6 @@ export default function Formulario({ onGuardar, onCancelar, movimientoEditar }) 
     }}>
       <style>{estiloAnimaciones}</style>
 
-      {/* Flecha atrás */}
       <button onClick={anterior} style={{
         position: 'absolute', top: 20, left: 20,
         background: 'none', border: 'none',
@@ -106,7 +109,6 @@ export default function Formulario({ onGuardar, onCancelar, movimientoEditar }) 
         WebkitTapHighlightColor: 'transparent',
       }}>←</button>
 
-      {/* Puntos */}
       <div style={{ position: 'absolute', top: 24, right: 20, display: 'flex', gap: 6 }}>
         {pasosFijos.map((_, i) => (
           <div key={i} style={{
@@ -116,14 +118,12 @@ export default function Formulario({ onGuardar, onCancelar, movimientoEditar }) 
         ))}
       </div>
 
-      {/* Badge edición */}
       {esEdicion && (
         <div style={{ position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)', background: 'rgba(255,255,255,0.15)', borderRadius: 99, padding: '4px 12px' }}>
           <span style={{ fontSize: 11, fontWeight: 600, color: '#fff', letterSpacing: '0.05em' }}>EDITANDO</span>
         </div>
       )}
 
-      {/* Contenido animado */}
       <div key={current} className="paso-contenido" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
         <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>
@@ -139,21 +139,18 @@ export default function Formulario({ onGuardar, onCancelar, movimientoEditar }) 
 
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-          {/* Opciones simples */}
           {paso.tipo === 'opciones' && paso.opciones.map(op => (
             <button key={op} onClick={() => seleccionar(op)} style={estiloOpcion(form[paso.campo] === op)}>
               {op.charAt(0).toUpperCase() + op.slice(1)}
             </button>
           ))}
 
-          {/* Método dinámico */}
           {paso.tipo === 'metodo' && opcionesMetodo.map(op => (
             <button key={op} onClick={() => seleccionar(op)} style={estiloOpcion(form.metodo === op)}>
               {op}
             </button>
           ))}
 
-          {/* Categorías con buscador */}
           {paso.tipo === 'categorias' && (
             <>
               <input
@@ -185,7 +182,6 @@ export default function Formulario({ onGuardar, onCancelar, movimientoEditar }) 
             </>
           )}
 
-          {/* Texto / número */}
           {(paso.tipo === 'texto' || paso.tipo === 'numero') && (
             <input
               type={paso.tipo === 'numero' ? 'number' : 'text'}
@@ -201,7 +197,6 @@ export default function Formulario({ onGuardar, onCancelar, movimientoEditar }) 
             />
           )}
 
-          {/* Fecha */}
           {paso.tipo === 'fecha' && (
             <input
               type="text"
@@ -220,7 +215,6 @@ export default function Formulario({ onGuardar, onCancelar, movimientoEditar }) 
 
         </div>
 
-        {/* Botón siguiente */}
         <button onClick={siguiente} disabled={vacio} style={{
           width: '100%', padding: '17px 20px', borderRadius: 99,
           border: 'none',
