@@ -14,7 +14,8 @@ export default function App() {
   const [movEditando, setMovEditando] = useState(null)
   const [mostrarConfig, setMostrarConfig] = useState(false)
   // Agregá estos estados junto a los otros useState
-
+  const [mesFiltro, setMesFiltro] = useState(new Date().getMonth())
+  const [anioFiltro, setAnioFiltro] = useState(new Date().getFullYear())
 
   function cambiarMes(m, a) {
     setMesFiltro(m)
@@ -115,7 +116,7 @@ export default function App() {
             </div>
           )}
 
-          <div style={{ flex: 1, overflow: 'hidden' }}>
+          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             {pantalla === 'formulario' && (
               <Formulario onGuardar={agregarMovimiento} onCancelar={() => setPantalla('lista')} />
             )}
