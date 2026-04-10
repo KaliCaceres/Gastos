@@ -204,9 +204,11 @@ export default function Formulario({ onGuardar, onCancelar, movimientoEditar }) 
           {/* Fecha */}
           {paso.tipo === 'fecha' && (
             <input
-              type="date"
+              type="text"
+              inputMode="numeric"
               value={form.fecha}
               onChange={handleInput}
+              placeholder="AAAA-MM-DD"
               style={{
                 width: '100%', padding: '18px 20px',
                 borderRadius: 99, border: '1.5px solid rgba(255,255,255,0.2)',
