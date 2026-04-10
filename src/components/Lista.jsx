@@ -330,7 +330,7 @@ export default function Lista({ movimientos, onEliminar, onMarcarRealizado, onRe
     }
     items.push({ tipo: 'movimiento', m })
   })
-
+  console.log('mes:', mes, 'anio:', anio, 'movimientos:', movimientos.length)
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#1A3C34' }}>
 
